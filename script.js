@@ -1,4 +1,4 @@
-// variable to store and loop through scheduler
+// Hours variable to store and loop through scheduler
 var workDay = [
     {
         id: "0",
@@ -65,32 +65,53 @@ var workDay = [
     },
     
 ]
+// save hours var to localStorage
+function saveReminders() {
+    localStorage.setItem("workDay", JSON.stringify(workDay));
+}
+
+// sets any data in localStorage to be displayed
+function displayReminders() {
+    workDay.forEach(function (_thisHour) {
+        $(`#${_thisHour.id}`).val(_thisHour.reminder);
+    })
+}
+
+// sets any existing localStorage data to the view if it exists
+function init() {
+    var storedDay = JSON.parse(localStorage.getItem("workDay"));
+
+    if (storedDay) {
+        workDay = storedDay;
+    }
+
+    saveReminders();
+    displayReminders();
+}
 
 // Display header date
 $(document).ready(function() {
-    
-    var currentDate = moment().format('MMMM Do YYYY');
-  
+    var currentDate = moment().format('dddd MMMM Do YYYY');
     var $headerDate = $('#currentDay');
     $headerDate.text(currentDate);
 });
 
-// creates the visuals for the scheduler body
+// creating Timeblocks
 workDay.forEach(function(thisHour) {
-    // creates timeblocks row
+    // timeblocks rows
     var hourRow = $("<form>").attr({
         "class": "row"
     });
     $(".container").append(hourRow);
 
-    // creates time field
-    var hourField = $("<div>")
+    // time holder Boxes
+    var hourBox = $("<div>")
         .text(`${thisHour.hour}${thisHour.meridiem}`)
         .attr({
             "class": "col-md-2 hour"
     });
 
-    // creates schdeduler data
+    // Textarea Boxes
     var hourPlan = $("<div>")
         .attr({
             "class": "col-md-9 description p-0"
@@ -112,12 +133,29 @@ workDay.forEach(function(thisHour) {
         })
     }
 
-    // creates save button
+    // save button
     var saveButton = $("<i class='far fa-save fa-lg'></i>")
     var savePlan = $("<button>")
         .attr({
             "class": "col-md-1 saveBtn"
     });
     savePlan.append(saveButton);
-    hourRow.append(hourField, hourPlan, savePlan);
+    hourRow.append(hourBox, hourPlan, savePlan);
 })
+
+// loads any existing localstorage 
+init();
+
+// saves data in localStorage on click of save button 
+$(".saveBtn").on("click", function(event) {
+    event.preventDefault();
+    var saveIndex = $(this).siblings(".description").children(".col-md-12").attr("id");
+    workDay[saveIndex].reminder = $(this).siblings(".description").children(".col-md-12").val();
+    //display saved message
+    alert("Saved!");
+    saveReminders();
+    displayReminders();
+})
+
+
+
